@@ -12,14 +12,19 @@ import {
   ActivityIndicator
 } from 'react-native';
 
-const API_KEY = "YOUR_API_KEY"; 
-
+const API_KEY = "YOUR_GROQ_API_KEY"; 
 const API_URL = "https://api.groq.com/openai/v1/chat/completions";
-
 const MODEL_NAME = "llama-3.1-8b-instant"; 
 
 export default function App() {
-  const [messages, setMessages] = useState([]); 
+  const [messages, setMessages] = useState([
+    {
+      id: 'system-prompt',
+      role: 'system',
+      text: '你是一個傲嬌的人，說話很毒舌但內心很關心人，常常用『笑死』開頭，請用繁體中文回答。',
+    }
+  ]); 
+  
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const flatListRef = useRef(null);
@@ -40,6 +45,7 @@ export default function App() {
     setMessages(updatedMessages);
     setIsLoading(true);
 
+  
     const historyPayload = updatedMessages.map(msg => ({
       role: msg.role,
       content: msg.text 
@@ -60,7 +66,6 @@ export default function App() {
       });
 
       const data = await response.json();
-      
       const aiResponseText = data.choices[0].message.content;
 
       const newAiMessage = {
@@ -83,6 +88,9 @@ export default function App() {
   };
 
   const renderMessageItem = ({ item }) => {
+  
+    if (item.role === 'system') return null;
+
     const isUser = item.role === 'user';
     return (
       <View style={[styles.messageBubble, isUser ? styles.userBubble : styles.aiBubble]}>
@@ -142,7 +150,7 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#1C1C1E' },
   messageList: { padding: 16, paddingBottom: 20 },
   messageBubble: { maxWidth: '75%', padding: 12, borderRadius: 16, marginVertical: 6 },
-  userBubble: { backgroundColor: '#34C759', alignSelf: 'flex-end', borderBottomRightRadius: 2 }, // 換個綠色區分
+  userBubble: { backgroundColor: '#34C759', alignSelf: 'flex-end', borderBottomRightRadius: 2 }, 
   aiBubble: { backgroundColor: '#E5E5EA', alignSelf: 'flex-start', borderBottomLeftRadius: 2 },
   messageText: { fontSize: 16, lineHeight: 22 },
   userText: { color: '#FFFFFF' },
